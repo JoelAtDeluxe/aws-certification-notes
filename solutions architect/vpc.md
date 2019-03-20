@@ -238,8 +238,9 @@ Allows VPCs ~in the same region~ (regardless of owner) to communicate
 
 ## VPC Direct Connect (DX)
 
-* High-performance/low latency connection to aws (non-internet based... whatever that means)
+* High-performance/low latency connection to aws
   * Similar to something like aspera?
+  * Requires physical infrastructure(?) to link HQ/DataCenter to AWS
 * Need to request from AWS -- process takes weeks/months
 * This would be a higher performance option compared to VPN
 * Works via 802.1Q Protocol (VLAN)
@@ -249,7 +250,7 @@ Allows VPCs ~in the same region~ (regardless of owner) to communicate
   * public vif to reach (public) AWS service (use public routable ip addresses)
   * private vif to reach private VPC (can use private routable ip addresses)
     * Seems to use 169.254.X.X ip addresses
-* Cannot establish layer 2 over DX (must be layer 3) (not sure waht this means)
+* Cannot establish layer 2 over DX (must be layer 3) (not sure what this means)
 * You cannot use a NAT gateway in the vpc over DX connection
 * Pictographically:
   * [HQ/DataCenter] <-> [CustomerRouter] <-> [DX_Connection] <-> [AWS_DX_Location]

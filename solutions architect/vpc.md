@@ -236,7 +236,90 @@ Allows VPCs ~in the same region~ (regardless of owner) to communicate
 
 * I have no idea what this guy is talking about
 
-## VPC Direct Connect
+## VPC Direct Connect (DX)
+
+* High-performance/low latency connection to aws (non-internet based... whatever that means)
+  * Similar to something like aspera?
+* Need to request from AWS -- process takes weeks/months
+* This would be a higher performance option compared to VPN
+* Works via 802.1Q Protocol (VLAN)
+  * VIF (virtual InterFace)
+* Rates: 50Mbps -> 10+Gbps
+* Requires 2 VIFs
+  * public vif to reach (public) AWS service (use public routable ip addresses)
+  * private vif to reach private VPC (can use private routable ip addresses)
+    * Seems to use 169.254.X.X ip addresses
+* Cannot establish layer 2 over DX (must be layer 3) (not sure waht this means)
+* You cannot use a NAT gateway in the vpc over DX connection
+* Pictographically:
+  * [HQ/DataCenter] <-> [CustomerRouter] <-> [DX_Connection] <-> [AWS_DX_Location]
+* Uses eBGP routing (what is this?)
+* DX connection have access to all AZs in a region
+* Can establish a IPSec VPN tunnel to contact remote regions as well (over public VIF)
+
+### High Availability with DX
+
+* Use multiple customer routers each with a direct connection (1 router per DX connection -- probably only need 2?)
+  * One active, one passive (for redundency situations)
+* This is an expensive redundency
+* Pictographically
+  * Active: [HQ/DataCenter] <-> [CustomerRouter] <-> [DX_Connection] <-> [AWS_DX_Location]
+  * Passive: [HQ/DataCenter] <-> [CustomerRouter] <-> [DX_Connection] <-> [AWS_DX_Location]
+
+Alternatively:
+
+* High Availability with Fault Tolerence
+* One DX connection, one passive VPN connection
+* Pictographically:
+  * Active: [HQ/DataCenter] <-> [CustomerRouter] <-> [DX_Connection] <-> [AWS_DX_Location]
+  * Passive: [HQ/DataCenter] <-> [CustomerRouter] <-> [VPN_Connection] <-> [AWS_VPC]
+
+## Transit VPC/ Private End points
+
+### Transit VPC
+
+* Allows communication between peered networks that would otherwise be unable to communicate
+* Not an explicit AWS service
+* Essentially an EC2 instance on the VPC that can proxy events from one service to another
+* Not managed, not high availability -- you need to manage yourself
+
+### VPC Endpoints
+
+* Gateways from VPC to other AWS services without going through internet
+* Go through trouter to VPC endpoint to aws service
+* Connects via private IP addresses
+* Will allow services/apps to not need to use public ip addresses to communicate with each other
+* Endpoints are redundant, scaled, highly availabile
+* Two types of endpoints, depending on service
+  * Interface Endpoints
+  * Gateway endpoints (S3/Dynamo DB)
+    * Reqauires endpoint policy control to control access
+    * Endpoints only works for same region only
+
+## VPC Flow Logs / DHCP Option Sets
+
+### Flow Logs
+
+* They're logs
+  * they capture IP traffic 
+* Logs at VPC, subnet, or network interface
+* At VPC/Subnet level captures each network interface under it
+* Can be published to cloudwatch or S3
+* To Create one:
+  * Specify the resource to capture
+  * The type of traffic to capture (accepted traffic, rejected, or all)
+  * The destination to store the logs
+* Cloud Watch log charges apply regardless of destination
+* Logs are generated after several minutes
+
+### DHCP Option Sets
+
+* You do not need to use AWS DNS for your VPC
+* You cannot use Route53 for your on-prem infrastructure
+* You cannot modify DHCP options
+  * You can create or delete them
+  * you can have multiple, but only one active at a time
+* DHCP Option sets effects running instances, but effects propagate after some time (hours)
 
 ## Problem Hints
 

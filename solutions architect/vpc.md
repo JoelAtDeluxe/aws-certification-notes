@@ -38,9 +38,61 @@ Virtual Private Cloud
     * Client controlled
 * Routes will have entries to external destinations
 
-### Time Gap -- get from other computer
+## IP Addresses
 
-pass
+** CIDR => IP Address range (x.y.z.0/8, e.g.)
+RFC-1918 subnet sizes:
+
+* 10.0.0.0/8
+* 172.16.0.0/12
+* 192.168.0.0/16
+* Private addresses
+
+Extra CIDR block range:
+
+* 100.64.0.0/10
+
+* packets destined to some place outside of the vpc do go outside of the network
+* 200 route tables per vpc
+* 50 routes per table
+* 1000 routes total, I suppose
+* Each subnet needs to have exactly 1 route table
+  * But, multiple subnets can use the same route table
+* By default, aach subnet is associated with the main route table
+* You can edit the main route table, but you cannot delete the main route table
+* You can reassign the main route table to another routing tbale
+* Routing between subnets exists by default (within a vpc)
+
+* You cannot change the CIDR block after the vpc is created
+* RFC-1918 IP versioning (192.168.0.0/16 / 172.16.0.0/16 )
+* CIDR block range: /28 (16 ip addresses assigned) -> /16 (65536 ip addresses assigned)
+* If a different size is needed, you need to make a VPC
+* No overlaping vpcs
+* You can extend into new CIDR blocks ("secondary block")
+  * This will add a route to all routing tables 
+  * You can choose something that doesn't overlap with a higher /x number
+
+If you want to expand your cidr block:
+
+| Current block | Permitted block                                                 |
+| ------------- | --------------------------------------------------------------- |
+| 10.0.0.0/8    | 10.0.0.0/8 (that's not restricted (overlaps?)) OR 100.64.0.0/10 |
+| 172.16.0.0/8  | 172.16.0.0/12 (not restricted) OR 100.64.0.0/10                 |
+
+* first 4 and last one are reserved for aws (gateway, multicast?)
+  * 10.0.0.0 -> base network
+  * 10.0.0.1 -> VPC router
+  * 10.0.0.2 -> DNS
+  * 10.0.0.3 -> Reserved
+  * 10.0.0.255 / Last ip (255 if a /24 -- 127 if /25, etc)
+* Internet Gateway
+  * One per VPC
+  * Gateway connects to other AWS services, internet at large
+  * Performs NAT (static one-to-one) between your private and public (or elastic) IPv4 addresses
+  * Horizationally scaled, redundant, highly available
+  * Supports both ipv4/ipv6
+
+
 
 ## VPC Types and VPC Security
 

@@ -47,6 +47,15 @@ Virtual Private Cloud
 * 50 routes per route table
 * 200 route tables per vpc
 * Subnets must be associated with only one route table at a time
+* Multiple subnets can be associated with the same subnet
+* pictographically:
+  +----------+
+  | subnet 1 |--+
+  +----------+  |     +-------------+
+                + --> | Route Table |
+  +----------+  |     +-------------+
+  | subnet 2 |--+
+  +----------+
 
 ## IP Addresses
 

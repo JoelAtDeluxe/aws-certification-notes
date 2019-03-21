@@ -28,15 +28,25 @@ Virtual Private Cloud
 
 * All are public 
 
-## Implied Router
+## (implied) Router
 
 * Central VPC routing function
 * Connects different availability zone and connects the vpc to the internet gateway
 * Two route tables:
   * Main Route Table
+    * In a public/private scenario, where subnets are created by the wizard, the main route table will be associated with the PRIVATE subnet
   * Custom Route Table
+    * In a public/private scenario, where subnets are created by the wizard, the custom rroute table will be associated with the PUBLIC subnet
     * Client controlled
 * Routes will have entries to external destinations
+
+### Route tables
+
+* Route tables apply to subnets
+* Each route table will, by default, connect the subnet to the entire vpc (i.e. VPC CIDR block routes to local (i.e. back to itself))
+* 50 routes per route table
+* 200 route tables per vpc
+* Subnets must be associated with only one route table at a time
 
 ## IP Addresses
 

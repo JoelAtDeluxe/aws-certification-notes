@@ -162,13 +162,14 @@ Provides enhanced performance among EC2 instances, where they are logically plac
 * You can use monitoring services to initiate actions (e.g. reboot) on impared instances
 * Once an instance is marked as impared, AWS will schedule a start/stop to move EBS-backed instance to move them to a new host
   * Or you can do this yourself
+  * Reboot is (apparently) not the same thing
 * EC2 service can send metrics to AWS CloudWatch every 5 minutes (enabled by default)
   * Free of change, called "basic monitoring"
 * You cn enable detailed omonitoring on launch (or later) where the ec2 _service_ to send metric data every 1 minute
   * A Fee applies for use (called "detailed monitoring")
 * Cloudwatch alarm actions:
   * Stop/Restart/Terminate/Recover
-    * Stop/Terminate to save costs
+    * Stop/Terminate to save costs (when you no longer need that instance)
     * Reboot/Recover to move instance to new host
   * You can use these to do some automatic maintenance (or other tasks), e.g. you can use this to kill long running processes once they complete
 

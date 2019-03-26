@@ -133,3 +133,21 @@ Encryption/copying/sharing related tasks
   * But you can change it by creating a copy of the snapshot, and during the copy process, you can choose to encrypt with a different key
   * If you create your own keys, you can then share the keys with other accounts
 
+## Creating and Registering AMIs
+
+AMIs are base images that are used to launch new EC2 instances
+
+* Creating an AMI can be prepared for your use-cases, saving time on initial configuration
+* To create an instance store backed AMI:
+  * Launch EC2 Instance from an Instance-store AMI
+  * Update root volume as needed (e.g. patching, updating)
+  * Create the AMI, which will store the AMI on S3 (stored on YOUR S3 bucket)
+  * Register the AMI (manually) -- this makes it available on the marketplace (either public for everyone, or private for just you)
+  * S3 charges will apply until you de-register the AMI, and delete the S3 objects
+  * Notes
+    * To change the AMI, you need to de-register and then re-register to have changes reflected
+    * When an instance is created via an instance store AMI, the image is copied from s3 and applied to the root
+* Remember to de-register the AMI when no longer needed
+* Once deregistered, the AMI will no longer be available to create new instances
+  * But instances currently using the AMI remain in state
+* 

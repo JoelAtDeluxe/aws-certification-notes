@@ -138,16 +138,46 @@ Encryption/copying/sharing related tasks
 AMIs are base images that are used to launch new EC2 instances
 
 * Creating an AMI can be prepared for your use-cases, saving time on initial configuration
+* To change the AMI, you need to de-register and then re-register to have changes reflected
+* When an instance is created via an instance store AMI, the image is copied from s3 and applied to the root
+* Remember to de-register the AMI when no longer needed
+* Once deregistered, the AMI will no longer be available to create new instances
+  * But instances currently using the AMI remain in state
+
+### Instance Store backed AMIs
+
 * To create an instance store backed AMI:
   * Launch EC2 Instance from an Instance-store AMI
   * Update root volume as needed (e.g. patching, updating)
   * Create the AMI, which will store the AMI on S3 (stored on YOUR S3 bucket)
   * Register the AMI (manually) -- this makes it available on the marketplace (either public for everyone, or private for just you)
   * S3 charges will apply until you de-register the AMI, and delete the S3 objects
-  * Notes
-    * To change the AMI, you need to de-register and then re-register to have changes reflected
-    * When an instance is created via an instance store AMI, the image is copied from s3 and applied to the root
-* Remember to de-register the AMI when no longer needed
-* Once deregistered, the AMI will no longer be available to create new instances
-  * But instances currently using the AMI remain in state
-* 
+
+### EBS Backed AMIs
+
+* Prior to creating an AMI from an EBS image, you must stop the instance (to ensure data consistency)
+  * Not a strict requirement, but a good idea
+* AMIs created from EBS backed instances are automatically registered
+* During the AMI-creation process, EC2 creates snapshots of your root volume and any EBS volume attached to the instance
+* EBS image is stored in Amazon's S3 bucket, not yours
+* Once you no longer need the image, delete the volume
+  * You need to deregister first
+* An AMI that uses encrupted volumes will only luanch on instances that support encryption
+* To delete an EBS AMI
+  * Deregister the image
+  * delete the snapshot
+
+## Raid
+
+* You can raid your EBS discs for higher performance
+* Raid is handled at the OS limitation
+* You'll need to match or exceed the network IOPS with the raid IOPS to optimally configure these
+* Supports Raid 0 (stripping -- write to multiple discs in parallel -- effective single large disc)
+  * Faster I/O
+  * More brittle solution
+* Supports Raid 1 (Mirroroing -- store the same bytes on multiple discs)
+  * Same speed
+  * More robust solution
+* Supports Raid 10 (mirrored and stripped)
+* Recommended not to use raid on the boot volume
+

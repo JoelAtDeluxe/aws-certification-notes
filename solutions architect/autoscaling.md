@@ -48,6 +48,7 @@ Grows/shrinks instances automatically to adjust to demand
 * Pairs well with ELB, Cloud Watch, and cloud trail
 * Tries to have an equal number of instances in all AZs. When not possible, it will try to add/remove new instances on one of the other configured AZs
 * Must define a subnet for each ASG in an AZ
+* An instance can only belong to a single Auto scaling group
 
 ## AZ Balancing / Rebalancing
 
@@ -71,4 +72,33 @@ Grows/shrinks instances automatically to adjust to demand
     * Manually terminating an ec2 instance in a particular AZ
     * No target instances available within a particular AZ for your launch config
     * Spot instances meet your bid price in a particular AZ
+
+## Instance States (add/delete instance to an ASG)
+
+* Conditions
+  * Instance must be in a running state
+  * AMI must still exist in AWS
+  * Instance must not be in another AS Group
+  * Instance is in the same AZs as the AS Group
+  * ASGroup must have room to include that instance (i.e. ASGroup must not be at max)
+* Instance States (during scaling)
+  * Pictographically
+    ```
+    [Pending] -> [InService] ─┬─>  Failed?  ─┬─> [Terminating] -> [Terminated]
+                              ├─> Scale In? ─┘
+                              ├─> Detatch? -> [Detaching] -> [Detached]
+                              └─> [Entering Standby] -> [Stand by] -> [Back to Pending]
+                              
+    ```
+  * Once terminated, EC2 instance cannot be put into the scaling group again
+* You can manually detach instances from an ASGroup
+* You can manage detatched instance independently or attach to another ASGroup
+  * If you remove it from the ASGroup, you can either opt to decrement the ASGroup desired capacity, or leave it.
+  * If leaving it, then a new instance will be brought up to restore the one revmoved
+* You can put an instance into standby state
+  * Health checks are not run in standby states
+  * Useful if you want to change the image or troubleshoot issues
+* ASGroup can be deleted
+  * When deleted, min/max/desired are set to 0, and will thus terminate all EC2 instances
+  * If you want to keep the instances, you must detach the instances you want manually
 

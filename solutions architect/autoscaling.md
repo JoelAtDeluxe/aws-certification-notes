@@ -102,3 +102,40 @@ Grows/shrinks instances automatically to adjust to demand
   * When deleted, min/max/desired are set to 0, and will thus terminate all EC2 instances
   * If you want to keep the instances, you must detach the instances you want manually
 
+## ELB and Autoscaling
+
+* ELB and AS Group must be in the same group
+* Instances in the ASGroup will automatically registered with the ELB
+  * Uses the ELB defined in the ASGroup
+* Instance and ELB must be in the same VPC
+* Detaching the instance will dereigster it from the ELB
+
+## Auto scaling group Health Checks
+
+* AS by default uses EC2 status checks to determine health of the instance
+* When you have 1+ ELBs defined with an ASG then you can configure AS to use the ELB health checks as well
+* Instance have a grace period to "warm up" before a health check is triggered, started via launch
+  * By default, a new instance is given 300 seconds for the grace period
+  * You can set the grace period to 0, effectively disabling it
+* Once a soruce is marked as unhleathy (from any source), then the AS will replace the isntance
+  * Once it has been marked as unhealthy, it can't _automatically_ recover from it's unhealthy designation
+  * While an instance has been declared unhealthy, there is a short window of time before termination where you can mark the instance as healthy (use as-set-instance-health)
+  * Better to use standby mode if you want to do any edits to a running instance
+* Unlike AZ Rebalacing, termination of unhealthy instance will destroy unhealthy instance first, then replace
+* If EBS volumes or elastic IPs are attached to a terminated instance, they will become detached, and need to be manually re-attached to new intances
+
+## Spot instances with AS Group & SNS
+
+* Cannot mix spot ASG and on-demand ASG
+* Bid price is set for all (specified) AZs 
+* AZs will still rebalance, provided that the AZ bid price is higher than the market price
+* (Note: you will need to create a new launch configuration if you want to increase the bid price)
+* You can configure Auto Scaling to send SNS email notifications when:
+  * Instance launches or fails to launch
+  * Instance terminates or fails to terminate
+* You can merge ASGroups via the CLI
+  * This can turn a 2+ ASG in distinct AZs into a single Multi-AZ ASG
+  * Once this is done, you can delete the older ASGs, as they won't be needed
+  * (you have to rezone one of the groups to cover the others)
+  * You have to merge two into an existing autoscaling group -- creating a new one will not work
+* 
